@@ -85,6 +85,20 @@ static PyObject* freeDeviceMemory(PyObject *self, PyObject *args)
   Py_RETURN_NONE;
 }
 
+static PyObject* testDGLFunctionsInC(PyObject* self, PyObject* args)
+{
+  PyObject* dglgraph;
+
+  if (!PyArg_ParseTuple(args, "O", &dglgraph)) {
+    printf("Error occured at %s:%d\n", __FILE__, __LINE__);
+    return NULL;
+  }
+
+  // PyObject* out_edges_function = PyObject_GetAttrString(graph, (char*)"out_edges");
+  // PyObject* args = PyTuple_Pack(1, PyLong_From(8));
+  // PyObject* uvs = PyObject_CallObject(out_edges_function, args);
+  // PyObject* vs = PyTuple_GetItem(uvs, 1);
+}
 
 extern "C" int* finalSamplesArray()
 {
@@ -98,6 +112,7 @@ static PyMethodDef ModuleMethods[] = {
   {"finalSamples", finalSamples, METH_VARARGS, "finalSamples(): This will return the final samples in the form of a Python List."},
   {"finalSampleLength", finalSampleLength, METH_VARARGS, "finalSampleLength(): This will return the size of each sample."},
   {"freeDeviceMemory", freeDeviceMemory, METH_VARARGS, "freeDeviceMemory(): Free allocated device memory by NextDoor."},
+  {"testDGLFunctionsInC", testDGLFunctionsInC, METH_VARARGS, "testDGLFunctionsInC():"}
   {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 

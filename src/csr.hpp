@@ -423,19 +423,32 @@ void csr_from_graph (CSR* csr, Graph& graph)
   }
 }
 
-void csr_from_dgl (CSR* csr, Graph& graph)
+/*
+void csr_from_dgl (CSR* csr, Py graph)
 {
   EdgePos_t edge_iterator = 0;
-  auto graph_vertices = graph.get_vertices ();
+  // auto graph_vertices = graph.get_vertices ();
+  graph_vertices = (graph.all_edges()[0]).unique()
+  edge_iterator = 0
 
   for (size_t i = 0; i < graph_vertices.size (); i++) {
     ::Vertex& vertex = graph_vertices[i];
     csr->vertices[i].set_from_graph_vertex (graph_vertices[i]);
     csr->vertices[i].set_start_edge_id (edge_iterator);
-    csr->vertices[i].set_max_weight(vertex.max_weight());
-    for (auto edge : vertex.get_edges ()) {
-      csr->edges[edge_iterator] = edge.first;
-      csr->weights[edge_iterator] = edge.second;
+    //csr->vertices[i].set_max_weight(vertex.max_weight());
+    PyObject* out_edges_function = PyObject_GetAttrString(graph, (char*)"out_edges");
+    PyObject* args = PyTuple_Pack(1, PyLong_From(graph_vertices[i]));
+    PyObject* uvs = PyObject_CallObject(out_edges_function, args);
+    PyObject* vs = PyTuple_GetItem(uvs, 1);
+    
+    PyObject* data_ptr_func = PyObject_GetAttrString(vs, (char*)"data_ptr");
+    //TODO: Look if args need to be PyTuple_New(0)
+    PyObject* edges_ptr = PyObject_CallObject(data_ptr_func, NULL);
+    
+    //TODO: Call "numel" to get size of vs.
+
+    for (int e = 0; e < numel; e++) {
+      csr->edges[edge_iterator] = ((long*)edges_ptr)[e];
       edge_iterator++;
     }
 
@@ -448,6 +461,6 @@ void csr_from_dgl (CSR* csr, Graph& graph)
     //   printf("start %d end %d\n", csr->vertices[i].get_start_edge_idx(), csr->vertices[i].get_end_edge_idx());
     // }
   }
-}
+}*/
 
 #endif
