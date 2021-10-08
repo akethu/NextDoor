@@ -1995,6 +1995,54 @@ CSR* loadGraph(Graph& graph, char* graph_file, char* graph_type, char* graph_for
   return nullptr;
 }
 
+CSR* loadGraphDGL(Graph& graph, python)
+{
+  CSR* csr;
+
+   //Load Graph
+   if (strcmp(graph_type, "adj-list") == 0) {
+    if (strcmp(graph_format, "text") == 0) {
+      graph.load_from_adjacency_list(graph_file);
+      //Convert graph to CSR format
+      csr = new CSR(graph.get_vertices().size(), graph.get_n_edges());
+      csr_from_graph (csr, graph);
+      return csr;
+    }
+    else {
+      printf ("graph_format '%s' not supported for graph_type '%s'\n", 
+              graph_format, graph_type);
+      return nullptr;
+    }
+  } else if (strcmp(graph_type, "edge-list") == 0) {
+    if (strcmp(graph_format, "binary") == 0) {
+      graph.load_from_edge_list_binary(graph_file, true);
+      csr = new CSR(graph.get_vertices().size(), graph.get_n_edges());
+      csr_from_graph (csr, graph);
+      return csr;
+    } else if (strcmp(graph_format, "text") == 0) {
+      FILE* fp = fopen (graph_file, "r");
+      if (fp == nullptr) {
+        std::cout << "File '" << graph_file << "' not found" << std::endl;
+        return nullptr;
+      }
+      graph.load_from_edge_list_txt(fp, true);
+      fclose (fp);
+      csr = new CSR(graph.get_vertices().size(), graph.get_n_edges());
+      csr_from_graph (csr, graph);
+      return csr;
+    } else {
+      printf ("graph_format '%s' not supported for graph_type '%s'\n", 
+              graph_format, graph_type);
+      return nullptr;
+    }
+  } else {
+    printf("Incorrect graph file type '%s'\n", graph_type);
+    return nullptr;
+  }
+
+  return nullptr;
+}
+
 template<typename NextDoorData>
 std::vector<GPUCSRPartition> transferCSRToGPUs(NextDoorData& data,  CSR* csr)
 {

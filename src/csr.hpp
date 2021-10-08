@@ -423,4 +423,31 @@ void csr_from_graph (CSR* csr, Graph& graph)
   }
 }
 
+void csr_from_dgl (CSR* csr, Graph& graph)
+{
+  EdgePos_t edge_iterator = 0;
+  auto graph_vertices = graph.get_vertices ();
+
+  for (size_t i = 0; i < graph_vertices.size (); i++) {
+    ::Vertex& vertex = graph_vertices[i];
+    csr->vertices[i].set_from_graph_vertex (graph_vertices[i]);
+    csr->vertices[i].set_start_edge_id (edge_iterator);
+    csr->vertices[i].set_max_weight(vertex.max_weight());
+    for (auto edge : vertex.get_edges ()) {
+      csr->edges[edge_iterator] = edge.first;
+      csr->weights[edge_iterator] = edge.second;
+      edge_iterator++;
+    }
+
+    if (vertex.get_edges().size() == 0)
+      csr->vertices[i].set_end_edge_id (-1);
+    else
+      csr->vertices[i].set_end_edge_id (edge_iterator-1);
+
+    // if (i == 45241) {
+    //   printf("start %d end %d\n", csr->vertices[i].get_start_edge_idx(), csr->vertices[i].get_end_edge_idx());
+    // }
+  }
+}
+
 #endif
